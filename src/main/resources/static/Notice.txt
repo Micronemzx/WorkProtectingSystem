@@ -1,0 +1,6 @@
+添加水印、添加指纹的WorkServiceImpl调用外部接口未写
+sql需要手动设置逐渐增长
+变量名全部采用小写的形式
+文件上传要用form-data，application/json
+文件上传地址：项目地址/taeget/classes/static/用户id/文件名  (注意路径全部英文)
+作品删除还未实现本地文件删除
