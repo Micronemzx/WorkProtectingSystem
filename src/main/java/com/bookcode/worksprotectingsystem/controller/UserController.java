@@ -371,7 +371,7 @@ public class UserController {
         if(cookies==null){
             return Result.error("401","NeedLogin");
         }
-        Boolean isLogin = false;
+        boolean isLogin = false;
         for (int i = 0; i < cookies.length; i++) {
             if (cookies[i].getName().equals("login_token")){//有储存token的cookie
                 isLogin = userService.isVaildToken(cookies[i].getValue());

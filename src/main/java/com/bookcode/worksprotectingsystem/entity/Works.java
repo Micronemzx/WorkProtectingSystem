@@ -1,7 +1,7 @@
 package com.bookcode.worksprotectingsystem.entity;
 
-import java.io.Serializable;
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name="work")
