@@ -1,5 +1,5 @@
 package com.bookcode.worksprotectingsystem.entity;
-
+//用于user中addwork的实体类
 public class WorkIDToAdd {
     private String uname;
     private int id;
