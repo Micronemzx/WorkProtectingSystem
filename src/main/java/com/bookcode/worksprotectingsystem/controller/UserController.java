@@ -1,10 +1,8 @@
 package com.bookcode.worksprotectingsystem.controller;
 
-import com.bookcode.worksprotectingsystem.entity.User;
-import com.bookcode.worksprotectingsystem.entity.UserForLogin;
-import com.bookcode.worksprotectingsystem.entity.Vip;
-import com.bookcode.worksprotectingsystem.entity.Works;
+import com.bookcode.worksprotectingsystem.entity.*;
 import com.bookcode.worksprotectingsystem.service.UserService;
+import com.bookcode.worksprotectingsystem.service.WorkService;
 import com.bookcode.worksprotectingsystem.utils.Result;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,13 +11,19 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.List;
+
 import static java.lang.Math.min;
+
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
     @Resource
     private UserService userService;
+
+    @Resource
+    private WorkService workservice;
 
     @PostMapping("/register")
     public Result<User> registController(@RequestBody User newUser){
@@ -34,17 +38,8 @@ public class UserController {
 
     @PutMapping("/update")
     public Result<User> updateController(@RequestBody User newUser, HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
+
         if(!isLogin){
             return Result.success("401","NeedLogin");
         }
@@ -59,17 +54,8 @@ public class UserController {
 
     @PostMapping("/checkLogin")
     public Result checkController(@RequestBody String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
+
         if(!isLogin){
             return Result.error("401","NeedLogin");
         }
@@ -115,17 +101,8 @@ public class UserController {
 
     @GetMapping("/logout")
     public Result logoutController(@RequestParam String uname,HttpServletResponse response,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
+
         if(!isLogin){
             return Result.success("401","NeedLogin");
         }
@@ -142,17 +119,8 @@ public class UserController {
 
     @DeleteMapping("/delete")
     public Result deleteController(@RequestParam String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
+
         if(!isLogin){
             return Result.success("401","NeedLogin");
         }
@@ -167,17 +135,8 @@ public class UserController {
 
     @GetMapping("/search")
     public Result searchController(@RequestParam String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
+
         if(!isLogin){
             return Result.success("401","NeedLogin");
         }
@@ -189,18 +148,9 @@ public class UserController {
     }//搜索
 
     @GetMapping("/showWorkList")
-    public Result<String> showWorkList(@RequestParam String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+    public Result<Works[]> showWorkList(@RequestParam String uname,HttpServletRequest request){
+        Boolean isLogin=userService.checkToken(request);
+
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
@@ -210,28 +160,43 @@ public class UserController {
         }
         else {
             String res=userService.showWorkList(user);
-            return Result.success(res,"200","successful");
+            if(res==null){
+                return Result.success(null,"200","successful");
+            }
+            int sz=res.length();
+            Works ans[]=new Works[sz];
+            int a[]=new int[sz];
+            StringBuilder temp=new StringBuilder("");
+            int cnt=0;//cnt个作品
+            for(int i=0;i<sz;i++){
+                char it=res.charAt(i);
+                if(it==','){
+                    String x=temp.toString();
+                    ans[cnt++]=workservice.getWorkInformationById(Integer.valueOf(x));
+                    temp=new StringBuilder("");
+                }
+                else {
+                    temp.append(it);
+                }
+            }
+            if(temp.length()>0){
+                String x=temp.toString();
+                ans[cnt++]=workservice.getWorkInformationById(Integer.valueOf(x));
+                temp=new StringBuilder("");
+            }
+            return Result.success(ans,"200","successful");
         }
     }//用户作品列表
 
     @PostMapping("/addWork")
-    public Result<String>addWork(@RequestBody Works work,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+    public Result<String>addWork(@RequestBody WorkIDToAdd work, HttpServletRequest request){
+        Boolean isLogin=userService.checkToken(request);
+
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
-        String uname=work.getOwnername();
-        long id=work.getWorkid();
+        String uname=work.getUname();
+        long id=work.getId();
         User user=userService.ifExist(uname);
         if(user==null){
             return Result.error("400","unsuccessful");
@@ -245,17 +210,7 @@ public class UserController {
 
     @PostMapping("/checkVip")
     public Result checkVipController(@RequestBody String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
@@ -274,17 +229,7 @@ public class UserController {
 
     @PostMapping("/recharge")
     public Result<String> rechargeController(@RequestBody Vip vip,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
@@ -302,17 +247,7 @@ public class UserController {
 
     @PostMapping("/setBlack")
     public Result setBlackController(@RequestBody String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
@@ -337,17 +272,7 @@ public class UserController {
 
     @PostMapping("/setWhite")
     public Result setWhiteController(@RequestBody String uname,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+        Boolean isLogin=userService.checkToken(request);
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
@@ -366,18 +291,8 @@ public class UserController {
     }//移除黑名单中的用户
 
     @GetMapping("/showPageWorkList")
-    public Result<String[]> showPageWorkList(@RequestParam String uname,@RequestParam int pagesize,@RequestParam int pagenum,HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            return Result.error("401","NeedLogin");
-        }
-        Boolean isLogin = false;
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("login_token")){//有储存token的cookie
-                isLogin = userService.isVaildToken(cookies[i].getValue());
-                break;
-            }
-        }
+    public Result<Works[]> showPageWorkList(@RequestParam String uname, @RequestParam int pagesize, @RequestParam int pagenum, HttpServletRequest request){
+        Boolean isLogin=userService.checkToken(request);
         if(isLogin==false){
             return Result.success("401","NeedLogin");
         }
@@ -386,20 +301,20 @@ public class UserController {
             return Result.error("400","unsuccessful");
         }
         else {
-            String b[]=new String[pagesize];
             String res=userService.showWorkList(user);
             if(res==null){
-                return Result.success(b,"200","successful");
+                return Result.success(null,"200","successful");
             }
             int sz=res.length();
-            String a[]=new String[sz];
+            Works a[]=new Works[sz];
+            Works ans[]=new Works[pagesize];
             StringBuilder temp=new StringBuilder("");
             int cnt=0;//cnt个作品
             for(int i=0;i<sz;i++){
                 char it=res.charAt(i);
                 if(it==','){
                     String x=temp.toString();
-                    a[cnt++]=x;
+                    a[cnt++]=workservice.getWorkInformationById(Integer.valueOf(x));
                     temp=new StringBuilder("");
                 }
                 else {
@@ -408,17 +323,15 @@ public class UserController {
             }
             if(temp.length()>0){
                 String x=temp.toString();
-                a[cnt++]=x;
+                a[cnt++]=workservice.getWorkInformationById(Integer.valueOf(x));
                 temp=new StringBuilder("");
             }
             int id=(pagenum-1)*pagesize;
             int ed=pagenum*pagesize;
-            int cnt2=0;
             for(int i=id;i<min(sz,ed);i++){
-                String xx=a[i];
-                b[cnt2++]=xx;
+                ans[i-id]=a[i];
             }
-            return Result.success(b,"200","successful");
+            return Result.success(ans,"200","successful");
         }
     }//按照page返回用户作品列表
 
