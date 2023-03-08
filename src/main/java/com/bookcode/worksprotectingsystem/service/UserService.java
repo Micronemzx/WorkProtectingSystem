@@ -2,6 +2,8 @@ package com.bookcode.worksprotectingsystem.service;
 
 import com.bookcode.worksprotectingsystem.entity.User;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface UserService {
 
     User nameFindService(String uname);
@@ -23,4 +25,6 @@ public interface UserService {
     void rechargeVip(User user,int days);
     String showWorkList(User user);
     void addWork(User user,int id);
+
+    Boolean checkToken(HttpServletRequest request);
 }

@@ -7,6 +7,8 @@ import com.bookcode.worksprotectingsystem.utils.Util;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -189,23 +191,21 @@ public class UserServiceImpl implements UserService{
 
 
 
-    /*@Override
-    public User updateService(String uname) {
-        User oldUser=userDao.findByUname(uname);
-        if(oldUser==null){
-            return null;
-        }
-        else{
-            if(oldUser!=null) {
-                oldUser.setPassword("");
-                oldUser.setEmail("");
-                oldUser.setPhone("");
-            }
-            return oldUser;
-        }
-    }
-
-     */
+   @Override
+    public Boolean checkToken(HttpServletRequest request){
+       Cookie[] cookies = request.getCookies();
+       if(cookies==null){
+           return false;
+       }
+       Boolean res = false;
+       for (int i = 0; i < cookies.length; i++) {
+           if (cookies[i].getName().equals("login_token")){//有储存token的cookie
+               res = isVaildToken(cookies[i].getValue());
+               break;
+           }
+       }
+       return res;
+   }
 
 
 
