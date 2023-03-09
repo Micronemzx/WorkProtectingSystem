@@ -10,5 +10,6 @@ import java.util.List;
 public interface WorkRepository  extends JpaRepository<Works,Long>{
     Works findByworkid(long id);
     Works findByworkfile(String filename);
-    List<Works> findByworkname(String name);
+    List<Works> findByWorknameAndOwnerid(String name,long ownerid);
+    //List<Works> findWorksByWorknameAndOwnerid(String name,long ownerid);
 }

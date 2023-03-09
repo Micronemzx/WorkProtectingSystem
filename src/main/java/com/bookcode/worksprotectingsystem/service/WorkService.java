@@ -15,7 +15,7 @@ public interface WorkService {
     boolean updateWork(Works work);        //修改文件信息
     //Works getWorkInformationByName(String Name);    //获取
     Works getWorkInformationById(long id);  //通过id获取作品详细信息
-    List<Works> searchWorksByName(String Name);
+    List<Works> searchWorksByName(long ownerid,long workid,String Name);
     boolean setinterval(long workid, int intervaltime);
 
     boolean addWaterMark(int workid);

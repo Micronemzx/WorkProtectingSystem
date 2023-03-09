@@ -81,10 +81,10 @@ public class WorkServiceImpl implements WorkService {
         return workResult;
     }
     @Override
-    public List<Works> searchWorksByName(String Name) {
+    public List<Works> searchWorksByName(long ownerid,long workid,String Name) {
         List<Works> res=null;
         if (!Objects.equals(Name, "")) {
-            res = WorkRepository.findByworkname(Name);
+            res = WorkRepository.findByWorknameAndOwnerid(Name,ownerid);
         }
         return res;
     }
@@ -150,6 +150,7 @@ public class WorkServiceImpl implements WorkService {
             String path = jarfile.getParentFile().toString()+"static/";
             String sonPath = Integer.toString(Math.toIntExact(work.getOwnerid()));
             String localPath = path+sonPath+"/"+fileName;
+            System.out.println(localPath);
             Works res = WorkRepository.findByworkfile(localPath);
             if (res != null) {
                 return Result.error("403","upload failed,file name is repeated");

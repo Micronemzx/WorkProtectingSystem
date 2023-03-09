@@ -116,12 +116,12 @@ public class WorkController {
     }
 
     @PostMapping(path = "/search")
-    public Result searchWorks(@RequestBody String name,HttpServletRequest request) {
+    public Result searchWorks(@RequestBody long ownerid,@RequestBody long workid,@RequestBody String name,HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (!checkcookie(cookies)) return Result.error("401","NeedLogin");
 
         if (Objects.equals(name, "")) return Result.error("400","failed");
-        else return Result.success(workservice.searchWorksByName(name),"successful");
+        else return Result.success(workservice.searchWorksByName(ownerid,workid,name),"successful");
     }
 
     @PostMapping(path = "/worklist")
