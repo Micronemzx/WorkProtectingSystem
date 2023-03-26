@@ -11,8 +11,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.List;
-
 import static java.lang.Math.min;
 
 
@@ -202,7 +200,7 @@ public class UserController {
             return Result.error("400","unsuccessful");
         }
         else {
-            userService.addWork(user, (int) id);
+            userService.addWork(user.getUid(), (int) id);
             String res=userService.showWorkList(user);
             return Result.success(res,"200","successful");
         }

@@ -24,7 +24,7 @@ public interface UserService {
     int checkVip(User user);
     void rechargeVip(User user,int days);
     String showWorkList(User user);
-    void addWork(User user,int id);
+    void addWork(long userid,long workid);
 
     Boolean checkToken(HttpServletRequest request);
 }

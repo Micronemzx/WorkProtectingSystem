@@ -172,8 +172,9 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void addWork(User user,int id) {
-        String idStr=Integer.toString(id);
+    public void addWork(long userid,long id) {
+        String idStr=Integer.toString((int) id);
+        User user=userDao.findByUid(userid);
         String workList=user.getWorklist();
         StringBuilder temp;
         if(workList!=null) {

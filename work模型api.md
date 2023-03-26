@@ -260,7 +260,7 @@ workinfoForm: {
     }
 }
 
-#### （POST)    /work/addFingerPrint    添加指纹
+#### （POST）    /work/addFingerPrint    添加指纹
 - 请求地址：http://localhost:8080/work/addFingerPrint
 - 请求参数：
 workinfoForm: {
