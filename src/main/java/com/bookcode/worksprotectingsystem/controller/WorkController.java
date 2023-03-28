@@ -53,7 +53,7 @@ public class WorkController {
         if (work.getWorkname() == null) return Result.error("403","file name is empty.");
         Result res = workservice.uploadFile(file, work);
         //if (res.getCode() != 200)
-        userService.addWork(work.getOwnerid(),work.getWorkid());
+        if (Objects.equals(res.getCode(), "200")) userService.addWork(work.getOwnerid(),work.getWorkid());
         return res;
     }
 

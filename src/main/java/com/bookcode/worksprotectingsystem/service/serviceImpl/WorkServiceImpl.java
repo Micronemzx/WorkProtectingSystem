@@ -170,7 +170,7 @@ public class WorkServiceImpl implements WorkService {
             work.setWorkfile(localPath);
             WorkRepository.save(work);
             int size= (int) file.getSize();
-            return Result.success(null,"successful");
+            return Result.success("200","successful");
         }
         else {
             return Result.error("403","upload failed,file is empty.");
